@@ -5,6 +5,7 @@ node {
    stage('Build') {
        dir("advance/workshop/talkshow"){
           sh 'python3 -V'
+          sh 'sudo apt install python3.10-venv'
           sh 'python3 -m venv venv'
           sh 'source venv/bin/activate'
           sh ''
