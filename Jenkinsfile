@@ -3,26 +3,28 @@ node {
      checkout scm
    }
    stage('Build') {
-       dir("advance/workshop/talkshow"){
-          sh 'python3 -V'
-          sh 'sudo apt install python3.10-venv'
-          sh 'python3 -m venv venv'
-          sh 'source venv/bin/activate'
-          sh ''
+        sh 'apt-get update -y'
+        sh 'python3 -V'
+        sh 'apt install python3.10-venv -y'
+        sh label: '',
+        script: '''
+        pip install -e '.[dev]'
+        pip install email_validator
+        '''
         // build
-       }
      }
    stage('test') {
-       dir("advance/workshop/talkshow"){
-        // test
-       }
+        sh 'py.test  -v --cov-config .coveragerc --cov=talkshow -l --tb=short --maxfail=1 tests/'
      }
    stage('Serve') {
-    dir("advance/workshop/talkshow"){
-        // serve
-       }
+        sh 'flask adduser -u admin -p 1234'
+        sh '''
+        flask addevent -n "Flask Conf" -d "2018-08-25"
+        '''
+        sh 'flask run'
     }
    stage('docker build/push') {
+        sh 'docker build . -t flaskapp --build-arg USERNAME=micha'
     //  docker build and push
    }
    stage('docker run') {
